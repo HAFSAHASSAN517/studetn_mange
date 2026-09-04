@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Course</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <h1>Edit Course</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Course Title:</label>
+            <input
+                type="text"
+                name="title"
+                value="{{ course.title }}"
+                required
+            >
+        </p>
+
+        <p>
+            <label>Description:</label>
+            <textarea
+                name="description"
+                required
+            >{{ course.description }}</textarea>
+        </p>
+
+        <p>
+            <label>Duration:</label>
+            <input
+                type="text"
+                name="duration"
+                value="{{ course.duration }}"
+                required
+            >
+        </p>
+
+        <button type="submit">
+            Update Course
+        </button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'teacher-dashboard' %}">
+        Cancel
+    </a>
+
+</body>
+</html>

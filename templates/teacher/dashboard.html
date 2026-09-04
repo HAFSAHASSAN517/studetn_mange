@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+</head>
+
+<body>
+
+    <h1>Teacher Dashboard</h1>
+
+    <p>Welcome, {{ request.user.username }}!</p>
+
+    <hr>
+
+    <h2>My Courses</h2>
+    <p> 
+       <a href="{% url 'teacher-course-create' %}">
+    CREATE COURSE
+</a>
+    </p> <br><br>
+
+    {% if courses %}
+
+        <table border="1">
+            <tr>
+                <th>Course Title</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Action</th>
+                
+            </tr>
+
+            {% for course in courses %}
+                <tr>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.description }}</td>
+                    <td>{{ course.duration }}</td>
+                    <td> <a href="{% url 'teacher-course-edit' course.id %}"> EDIT  </a></td>
+                    <td> <a href ="{% url 'course-delete' course.id %}"> DELETE </a> </td>
+                    <td> <a href="{% url 'teacher-course-students' course.id %}"> VIEW STUDENTS </a> </td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        <p>You have no courses assigned to you.</p>
+
+    {% endif %}
+
+    <br>
+
+    {% if courses.has_previous %}
+        <a href="?page={{ courses.previous_page_number }}">
+            Previous
+        </a>
+    {% endif %}
+
+    <span>
+        Page {{ courses.number }} of {{ courses.paginator.num_pages }}
+    </span>
+
+    {% if courses.has_next %}
+        <a href="?page={{ courses.next_page_number }}">
+            Next
+        </a>
+    {% endif %}
+
+    <br><br>
+
+    <a href="{% url 'logout' %}">Logout</a>
+
+</body>
+</html>

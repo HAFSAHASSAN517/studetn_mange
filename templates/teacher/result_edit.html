@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Student Result</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <h1>Edit Student Result</h1>
+
+    <p>
+        <strong>Student:</strong>
+        {{ enrollment.student.name }}
+    </p>
+
+    <p>
+        <strong>Course:</strong>
+        {{ enrollment.course.title }}
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Marks:</label>
+            <input
+                type="number"
+                name="marks"
+                min="0"
+                max="100"
+                step="0.01"
+                value="{{ result.marks }}"
+                required
+            >
+        </p>
+
+        <p>
+            <label>Remarks:</label>
+            <textarea name="remarks">{{ result.remarks }}</textarea>
+        </p>
+
+        <button type="submit">
+            Save Result
+        </button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'teacher-course-students' enrollment.course.id %}">
+        Back to Students
+    </a>
+
+</body>
+</html>

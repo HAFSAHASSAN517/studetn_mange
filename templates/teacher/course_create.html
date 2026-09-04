@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Course</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <h1>Create New Course</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Course Title:</label>
+            <input type="text" name="title" required>
+        </p>
+
+        <p>
+            <label>Description:</label>
+            <textarea name="description" required></textarea>
+        </p>
+
+        <p>
+            <label>Duration:</label>
+            <input type="text" name="duration" required>
+        </p>
+
+        <button type="submit">
+            Create Course
+        </button>
+    </form>
+
+    <br>
+
+    <a href="{% url 'teacher-dashboard' %}">
+        Cancel
+    </a>
+
+</body>
+</html>

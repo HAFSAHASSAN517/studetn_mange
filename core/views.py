@@ -12,130 +12,68 @@ from .gemini import generate_ai_text
 
 
 # =========================
-# REGISTER
+# AUTHENTICATION
 # =========================
 
 def register(request):
-
     if request.method == "POST":
-
         form = RegisterationForm(request.POST)
-
         if form.is_valid():
-
             form.save()
-
-            messages.success(
-                request,
-                "Your account has been created successfully."
-            )
-
+            messages.success(request, "Your account has been created successfully.")
             return redirect("login")
-
     else:
         form = RegisterationForm()
 
-    return render(
-        request,
-        "registeration/register.html",
-        {"form": form}
-    )
+    return render(request, "registeration/register.html", {"form": form})
 
-
-# =========================
-# LOGIN
-# =========================
 
 def user_login(request):
-
     if request.method == "POST":
-
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
-
             login(request, user)
-
             if user.groups.filter(name="Admin").exists():
                 return redirect("admin-dashboard")
-
             elif user.groups.filter(name="Teacher").exists():
                 return redirect("teacher-dashboard")
-
             elif user.groups.filter(name="Student").exists():
                 return redirect("student-dashboard")
-
             else:
-
-                messages.error(
-                    request,
-                    "Your account has no assigned role."
-                )
-
+                messages.error(request, "Your account has no assigned role.")
                 logout(request)
-
         else:
+            messages.error(request, "Invalid username or password.")
 
-            messages.error(
-                request,
-                "Invalid username or password."
-            )
+    return render(request, "auth/login.html")
 
-    return render(
-        request,
-        "auth/login.html"
-    )
-
-
-# =========================
-# LOGOUT
-# =========================
 
 def user_logout(request):
-
     logout(request)
-
     return redirect("login")
 
 
 # ==================================================
-# TEACHER
+# TEACHER DASHBOARD & COURSE MANAGEMENT
 # ==================================================
 
 @role_required("Teacher")
 def teacher_dashboard(request):
-
-    courses = Course.objects.filter(
-        assigned_teacher=request.user
-    )
-
+    courses = Course.objects.filter(assigned_teacher=request.user)
     paginator = Paginator(courses, 5)
-
     page_number = request.GET.get("page")
+    courses_page = paginator.get_page(page_number)
 
-    courses = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "teacher/dashboard.html",
-        {
-            "courses": courses
-        }
-    )
+    return render(request, "teacher/dashboard.html", {"courses": courses_page})
 
 
 @role_required("Teacher")
 def teacher_course_create(request):
-
     if request.method == "POST":
-
         title = request.POST.get("title")
         description = request.POST.get("description")
         duration = request.POST.get("duration")
@@ -146,169 +84,98 @@ def teacher_course_create(request):
             duration=duration,
             assigned_teacher=request.user
         )
-       
-
-        messages.success(
-            request,
-            "Course created successfully."
-        )
-
+        messages.success(request, "Course created successfully.")
         return redirect("teacher-dashboard")
 
-    return render(
-        request,
-        "teacher/course_create.html"
-    )
+    return render(request, "teacher/course_create.html")
 
 
 @role_required("Teacher")
 def teacher_course_edit(request, course_id):
-
-    course = get_object_or_404( Course,
-        id=course_id,
-        assigned_teacher=request.user
-    )
+    course = get_object_or_404(Course, id=course_id)
+    if course.assigned_teacher != request.user:
+        raise PermissionDenied
 
     if request.method == "POST":
-
         course.title = request.POST.get("title")
         course.description = request.POST.get("description")
         course.duration = request.POST.get("duration")
-
         course.save()
-
-        messages.success(
-            request,
-            "Course updated successfully."
-        )
-
+        messages.success(request, "Course updated successfully.")
         return redirect("teacher-dashboard")
 
-    return render(
-        request,
-        "teacher/course_edit.html",
-        {
-            "course": course
-        }
-    )
+    return render(request, "teacher/course_edit.html", {"course": course})
 
 
 @role_required("Teacher")
-def techer_course_del(request, course_id):
-
-    course = get_object_or_404( Course,
-        id=course_id,
-        assigned_teacher=request.user
-    )
+def teacher_course_del(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if course.assigned_teacher != request.user:
+        raise PermissionDenied
 
     if request.method == "POST":
-
         course.delete()
-
-        messages.success(
-            request,
-            "Course deleted successfully."
-        )
-
+        messages.success(request, "Course deleted successfully.")
         return redirect("teacher-dashboard")
 
-    return render(
-        request,
-        "teacher/course_delete.html",
-        {
-            "course": course
-        }
-    )
+    return render(request, "teacher/course_delete.html", {"course": course})
 
 
 @role_required("Teacher")
 def teacher_course_student(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if course.assigned_teacher != request.user:
+        raise PermissionDenied
 
-    course = get_object_or_404( Course,
-        id=course_id,
-        assigned_teacher=request.user
-    )
-
-    enrollments = Enrollment.objects.filter(
-        course=course
-    )
-
-    return render(
-        request,
-        "teacher/course_students.html",
-        {
-            "course": course,
-            "enrollments": enrollments
-        }
-    )
+    enrollments = Enrollment.objects.filter(course=course).select_related("student", "student__user")
+    return render(request, "teacher/course_students.html", {"course": course, "enrollments": enrollments})
 
 
 @role_required("Teacher")
 def teacher_result_edit(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+    if enrollment.course.assigned_teacher != request.user:
+        raise PermissionDenied
 
-    enrollment = get_object_or_404( Enrollment,
-        id=enrollment_id,
-        course__assigned_teacher=request.user
-    )
-
-    result = Result.objects.filter(
-        enrollment=enrollment
-    ).first()
+    result = Result.objects.filter(enrollment=enrollment).first()
 
     if request.method == "POST":
+        marks_input = request.POST.get("marks")
+        remarks_input = request.POST.get("remarks")
+
+        try:
+            marks_val = float(marks_input)
+            if marks_val < 0 or marks_val > 100:
+                messages.error(request, "Marks must be between 0 and 100.")
+                return render(request, "teacher/result_edit.html", {"enrollment": enrollment, "result": result})
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter a valid numeric value for marks.")
+            return render(request, "teacher/result_edit.html", {"enrollment": enrollment, "result": result})
 
         if result is None:
-            result = Result(
-                enrollment=enrollment
-            )
+            result = Result(enrollment=enrollment)
 
-        result.marks = request.POST.get("marks")
-        result.remarks = request.POST.get("remarks")
-
-        if result.enrollment.course.assigned_teacher != request.user:
-            raise PermissionDenied
-
+        result.marks = marks_val
+        result.remarks = remarks_input
         result.save()
 
-        messages.success(
-            request,
-            "Student result updated successfully."
-        )
+        messages.success(request, "Student result updated successfully.")
+        return redirect("teacher-course-students", course_id=enrollment.course.id)
 
-        return redirect(
-            "teacher-course-students",
-            course_id=enrollment.course.id
-        )
-
-    return render(
-        request,
-        "teacher/result_edit.html",
-        {
-            "enrollment": enrollment,
-            "result": result
-        }
-    )
+    return render(request, "teacher/result_edit.html", {"enrollment": enrollment, "result": result})
 
 
 # ==================================================
 # ADMIN DASHBOARD
 # ==================================================
-
 @role_required("Admin")
 def admin_dashboard(request):
+    students_list = Student.objects.all().select_related("user")
 
-    students_list = Student.objects.all()
-
-    query = request.GET.get(
-        "q",
-        ""
-    ).strip()
-
+    query = request.GET.get("q", "").strip()
     teacher_id = request.GET.get("teacher")
 
-    teachers = User.objects.filter(
-        groups__name="Teacher"
-    ).distinct()
+    teachers = User.objects.filter(groups__name="Teacher").distinct()
 
     if query:
         students_list = students_list.filter(
@@ -317,28 +184,22 @@ def admin_dashboard(request):
             user__email__icontains=query
         )
 
-    if teacher_id:
-        student_ids = Enrollment.objects.filter(
-            course__assigned_teacher_id=teacher_id
-        ).values_list(
-            "student_id",
-            flat=True
-        )
+    # Sanitize teacher_id to ignore empty strings or literal "None"
+    if teacher_id and teacher_id.strip() and teacher_id != "None":
+        try:
+            teacher_pk = int(teacher_id)
+            student_ids = Enrollment.objects.filter(
+                course__assigned_teacher_id=teacher_pk
+            ).values_list("student_id", flat=True)
+            students_list = students_list.filter(id__in=student_ids).distinct()
+        except ValueError:
+            teacher_id = ""
+    else:
+        teacher_id = ""
 
-        students_list = students_list.filter(
-            id__in=student_ids
-        ).distinct()
-
-    paginator = Paginator(
-        students_list,
-        5
-    )
-
+    paginator = Paginator(students_list, 5)
     page_number = request.GET.get("page")
-
-    students = paginator.get_page(
-        page_number
-    )
+    students = paginator.get_page(page_number)
 
     return render(
         request,
@@ -357,17 +218,18 @@ def admin_dashboard(request):
 
 @role_required("Student")
 def student_dashboard(request):
+    student = get_object_or_404(Student, user=request.user)
 
-    student = get_object_or_404( Student,
-        user=request.user
-    )
-
-    enrollments = Enrollment.objects.filter(
+    enrollments_list = Enrollment.objects.filter(
         student=student
     ).select_related(
         "course",
         "course__assigned_teacher"
     )
+
+    paginator = Paginator(enrollments_list, 5)
+    page_number = request.GET.get("page")
+    enrollments = paginator.get_page(page_number)
 
     return render(
         request,
@@ -380,53 +242,30 @@ def student_dashboard(request):
 
 
 # ==================================================
-# ADMIN - STUDENT MANAGEMENT
+# ADMIN - STUDENT MANAGEMENT & AI
 # ==================================================
+
 @role_required("Admin")
 def student_detail(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    return render(request, "admin_dashboard/student_detail.html", {"student": student})
 
-    student = get_object_or_404(
-        Student,
-        id=student_id
-    )
 
-    return render(
-        request,
-        "admin_dashboard/student_detail.html",
-        {
-            "student": student
-        }
-    )
 @role_required("Admin")
 def generate_student_summary(request, student_id):
-
     if request.method != "POST":
         raise PermissionDenied
 
-    student = get_object_or_404(
-        Student,
-        id=student_id
-    )
-
-    enrollments = Enrollment.objects.filter(
-        student=student
-    ).select_related(
-        "course",
-        "course__assigned_teacher"
-    )
+    student = get_object_or_404(Student, id=student_id)
+    enrollments = Enrollment.objects.filter(student=student).select_related("course", "course__assigned_teacher")
 
     performance = []
-
     for enrollment in enrollments:
-
-        result = Result.objects.filter(
-            enrollment=enrollment
-        ).first()
-
+        result = Result.objects.filter(enrollment=enrollment).first()
+        marks_str = str(result.marks) if (result and result.marks is not None) else "Not recorded"
+        remarks_str = result.remarks if (result and result.remarks) else "None"
         performance.append(
-            f"Course: {enrollment.course.title}, "
-            f"Marks: {result.marks if result else 'Not available'}, "
-            f"Remarks: {result.remarks if result else 'Not available'}"
+            f"Course: {enrollment.course.title}, Marks: {marks_str}, Remarks: {remarks_str}"
         )
 
     prompt = f"""
@@ -439,48 +278,29 @@ Email: {student.user.email}
 Course Performance:
 {chr(10).join(performance)}
 """
-
     summary = generate_ai_text(prompt)
-
     student.ai_summary = summary
     student.save()
 
-    messages.success(
-        request,
-        "AI summary generated successfully."
-    )
+    messages.success(request, "AI summary generated successfully.")
+    return redirect("student-detail", student_id=student.id)
 
-    return redirect(
-        "student-detail",
-        student_id=student.id
-    )
-       
+
 @role_required("Admin")
 def generate_enrollment_report(request):
-
     if request.method != "POST":
         raise PermissionDenied
 
-    enrollments = Enrollment.objects.all().select_related(
-        "student",
-        "course",
-        "course__assigned_teacher"
-    )
+    enrollments = Enrollment.objects.all().select_related("student", "course", "course__assigned_teacher")
 
     enrollment_data = []
-
     for enrollment in enrollments:
-
-        result = Result.objects.filter(
-            enrollment=enrollment
-        ).first()
-
+        result = Result.objects.filter(enrollment=enrollment).first()
+        marks_str = str(result.marks) if (result and result.marks is not None) else "Not recorded"
+        remarks_str = result.remarks if (result and result.remarks) else "None"
         enrollment_data.append(
-            f"Student: {enrollment.student.name}, "
-            f"Course: {enrollment.course.title}, "
-            f"Teacher: {enrollment.course.assigned_teacher.username}, "
-            f"Marks: {result.marks if result else 'Not available'}, "
-            f"Remarks: {result.remarks if result else 'Not available'}"
+            f"Student: {enrollment.student.name}, Course: {enrollment.course.title}, "
+            f"Teacher: {enrollment.course.assigned_teacher.username}, Marks: {marks_str}, Remarks: {remarks_str}"
         )
 
     prompt = f"""
@@ -492,79 +312,37 @@ and any recommendations for improvement.
 Enrollment Data:
 {chr(10).join(enrollment_data)}
 """
-
     report = generate_ai_text(prompt)
+    return render(request, "admin_dashboard/enrollment_report.html", {"report": report})
 
-    return render(
-        request,
-        "admin_dashboard/enrollment_report.html",
-        {
-            "report": report
-        }
-    )    
+
 @role_required("Admin")
 def student_edit(request, student_id):
-
-    student =get_object_or_404( Student,
-        id=student_id
-    )
+    student = get_object_or_404(Student, id=student_id)
 
     if request.method == "POST":
-
         student.name = request.POST.get("name")
-        
         student.age = request.POST.get("age")
-
         student.user.email = request.POST.get("email")
         student.user.save()
-
         student.save()
 
-        messages.success(
-            request,
-            "Student is updated successfully."
-        )
+        messages.success(request, "Student updated successfully.")
+        return redirect("student-detail", student_id=student.id)
 
-        return redirect(
-            "student-detail",
-            student_id=student.id
-        )
+    return render(request, "admin_dashboard/student_edit.html", {"student": student})
 
-    return render(
-        request,
-        "admin_dashboard/student_edit.html",
-        {
-            "student": student
-        }
-    )
 
 @role_required("Admin")
 def student_delete(request, student_id):
-
-    student = get_object_or_404( Student,
-        id=student_id
-    )
+    student = get_object_or_404(Student, id=student_id)
 
     if request.method == "POST":
-
         student.delete()
+        messages.success(request, "Student deleted successfully.")
+        return redirect("admin-dashboard")
 
-        messages.success(
-            request,
-            "Student deleted successfully."
-        )
-
-        return redirect(
-            "admin-dashboard"
-        )
-
-    return render(
-        request,
-        "admin_dashboard/delete.html",
-        {
-            "student": student
-        }
-    )
+    return render(request, "admin_dashboard/delete.html", {"student": student})
 
 
 # ==================================================
@@ -573,34 +351,17 @@ def student_delete(request, student_id):
 
 @role_required("Admin")
 def course_list(request):
-
     courses = Course.objects.all()
-
-    paginator = Paginator(
-        courses,
-        5
-    )
-
+    paginator = Paginator(courses, 5)
     page_number = request.GET.get("page")
+    courses_page = paginator.get_page(page_number)
 
-    courses = paginator.get_page(
-        page_number
-    )
-
-    return render(
-        request,
-        "admin_dashboard/course.html",
-        {
-            "courses": courses
-        }
-    )
+    return render(request, "admin_dashboard/course.html", {"courses": courses_page})
 
 
 @role_required("Admin")
 def course_create(request):
-
     if request.method == "POST":
-
         title = request.POST.get("title")
         description = request.POST.get("description")
         duration = request.POST.get("duration")
@@ -612,102 +373,44 @@ def course_create(request):
             duration=duration,
             assigned_teacher_id=teacher_id
         )
+        messages.success(request, "Course added successfully.")
+        return redirect("course-list")
 
-        messages.success(
-            request,
-            "Courses added successfully."
-        )
-
-        return redirect(
-            "course-list"
-        )
-
-    teachers = User.objects.filter(
-        groups__name="Teacher"
-    )
-
-    return render(
-        request,
-        "admin_dashboard/course_create.html",
-        {
-            "teachers": teachers
-        }
-    )
+    teachers = User.objects.filter(groups__name="Teacher")
+    return render(request, "admin_dashboard/course_create.html", {"teachers": teachers})
 
 
 @role_required("Admin")
 def course_edit(request, course_id):
-
-    course = get_object_or_404( Course,
-        id=course_id
-    )
+    course = get_object_or_404(Course, id=course_id)
 
     if request.method == "POST":
-
         course.title = request.POST.get("title")
         course.description = request.POST.get("description")
         course.duration = request.POST.get("duration")
 
         teacher_id = request.POST.get("teacher")
-        teacher=get_object_or_404(
-            User,teacher_id,groups__name="Teacher"
-        )
-
+        get_object_or_404(User, id=teacher_id, groups__name="Teacher")
         course.assigned_teacher_id = teacher_id
-
         course.save()
 
-        messages.success(
-            request,
-            "Course updated successfully."
-        )
+        messages.success(request, "Course updated successfully.")
+        return redirect("course-list")
 
-        return redirect(
-            "course-list"
-        )
-
-    teachers = User.objects.filter(
-        groups__name="Teacher"
-    )
-
-    return render(
-        request,
-        "admin_dashboard/course_edit.html",
-        {
-            "teachers": teachers,
-            "course": course,
-            
-        }
-    )
+    teachers = User.objects.filter(groups__name="Teacher")
+    return render(request, "admin_dashboard/course_edit.html", {"teachers": teachers, "course": course})
 
 
 @role_required("Admin")
 def course_del(request, course_id):
-
-    course = get_object_or_404( Course,
-        id=course_id
-    )
+    course = get_object_or_404(Course, id=course_id)
 
     if request.method == "POST":
-
         course.delete()
+        messages.success(request, "Course deleted successfully.")
+        return redirect("course-list")
 
-        messages.success(
-            request,
-            "Course deleted successfully."
-        )
-
-        return redirect(
-            "course-list"
-        )
-
-    return render(
-        request,
-        "admin_dashboard/course_delete.html",
-        {
-            "course": course
-        }
-    )
+    return render(request, "admin_dashboard/course_delete.html", {"course": course})
 
 
 # ==================================================
@@ -716,27 +419,12 @@ def course_del(request, course_id):
 
 @role_required("Admin")
 def enrollment_list(request):
-
-    enrollments = Enrollment.objects.all()
-
-    paginator = Paginator(
-        enrollments,
-        5
-    )
-
+    enrollments = Enrollment.objects.all().select_related("student", "course")
+    paginator = Paginator(enrollments, 5)
     page_number = request.GET.get("page")
+    enrollments_page = paginator.get_page(page_number)
 
-    enrollments = paginator.get_page(
-        page_number
-    )
-
-    return render(
-        request,
-        "admin_dashboard/enrollment.html",
-        {
-            "enrollments": enrollments
-        }
-    )
+    return render(request, "admin_dashboard/enrollment.html", {"enrollments": enrollments_page})
 
 
 @role_required("Admin")
@@ -745,61 +433,31 @@ def enrollment_create(request):
         student_id = request.POST.get("student")
         course_id = request.POST.get("course")
 
-        if Enrollment.objects.filter(
-            student_id=student_id,
-            course_id=course_id
-        ).exists():
-            messages.error(
-                request,
-                "This student is already enrolled in this course."
-            )
+        if Enrollment.objects.filter(student_id=student_id, course_id=course_id).exists():
+            messages.error(request, "This student is already enrolled in this course.")
             return redirect("enrollment-create")
 
-        Enrollment.objects.create(
-            student_id=student_id,
-            course_id=course_id
-        )
-
+        Enrollment.objects.create(student_id=student_id, course_id=course_id)
         messages.success(request, "Student enrolled successfully.")
         return redirect("enrollment-list")
 
     students = Student.objects.all()
     courses = Course.objects.all()
+    return render(request, "admin_dashboard/enrollment_create.html", {"students": students, "courses": courses})
 
-    return render(
-        request,
-        "admin_dashboard/enrollment_create.html",
-        {
-            "students": students,
-            "courses": courses
-        }
-    )
 
 @role_required("Admin")
 def enrollment_delete(request, enrollment_id):
-
-    enrollment = get_object_or_404(
-        Enrollment,
-        id=enrollment_id
-    )
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
 
     if request.method == "POST":
         enrollment.delete()
-
-        messages.success(
-            request,
-            "Enrollment deleted successfully."
-        )
-
+        messages.success(request, "Enrollment deleted successfully.")
         return redirect("enrollment-list")
 
-    return render(
-        request,
-        "admin_dashboard/enrollment_delete.html",
-        {
-            "enrollment": enrollment
-        }
-    )
+    return render(request, "admin_dashboard/enrollment_delete.html", {"enrollment": enrollment})
+
+
 @role_required("Admin")
 def enrollment_edit(request, enrollment_id):
     enrollment = get_object_or_404(Enrollment, id=enrollment_id)
@@ -807,8 +465,6 @@ def enrollment_edit(request, enrollment_id):
     if request.method == "POST":
         student_id = request.POST.get("student")
         course_id = request.POST.get("course")
-        print("STUDENT:", student_id)
-        print("COURSE:", course_id)
 
         duplicate = Enrollment.objects.filter(
             student_id=student_id,
@@ -816,10 +472,7 @@ def enrollment_edit(request, enrollment_id):
         ).exclude(id=enrollment.id).exists()
 
         if duplicate:
-            messages.error(
-                request,
-                "This student is already enrolled in this course."
-            )
+            messages.error(request, "This student is already enrolled in this course.")
             return redirect("enrollment-edit", enrollment_id=enrollment.id)
 
         enrollment.student_id = student_id
@@ -831,43 +484,22 @@ def enrollment_edit(request, enrollment_id):
 
     students = Student.objects.all()
     courses = Course.objects.all()
-
     return render(
         request,
         "admin_dashboard/enrollment_edit.html",
-        {
-            "enrollment": enrollment,
-            "students": students,
-            "courses": courses
-        }
+        {"enrollment": enrollment, "students": students, "courses": courses}
     )
-    
+
+
 # ==================================================
 # ADMIN - TEACHER MANAGEMENT
 # ==================================================
 
 @role_required("Admin")
 def teacher_list(request):
-
-    teachers = User.objects.filter(
-        groups__name="Teacher"
-    ).distinct()
-
-    paginator = Paginator(
-        teachers,
-        5
-    )
-
+    teachers = User.objects.filter(groups__name="Teacher").distinct()
+    paginator = Paginator(teachers, 5)
     page_number = request.GET.get("page")
+    teachers_page = paginator.get_page(page_number)
 
-    teachers = paginator.get_page(
-        page_number
-    )
-
-    return render(
-        request,
-        "admin_dashboard/teacher.html",
-        {
-            "teachers": teachers
-        }
-    )
+    return render(request, "admin_dashboard/teacher.html", {"teachers": teachers_page})

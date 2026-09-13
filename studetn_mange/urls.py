@@ -19,7 +19,7 @@ from django.urls import path
 from core.views import register,user_login,user_logout
 from core.views import teacher_dashboard,admin_dashboard,student_dashboard,student_detail,student_edit
 from core.views import student_delete,course_list,course_create,course_edit,course_del
-from core.views import teacher_course_create,teacher_course_edit,techer_course_del,teacher_course_student,teacher_result_edit
+from core.views import teacher_course_create,teacher_course_edit,teacher_course_del,teacher_course_student,teacher_result_edit
 from core.views import enrollment_list,enrollment_create
 from core.views import teacher_list,generate_student_summary,generate_enrollment_report
 from core.views import enrollment_delete,enrollment_edit
@@ -46,7 +46,7 @@ path(
     teacher_course_edit,
     name="teacher-course-edit"
 ),
-path("teacher/course-del/<int:course_id>/",techer_course_del,name="course-delete"),
+path("teacher/course-del/<int:course_id>/",teacher_course_del,name="course-delete"),
 path("teacher/course-student/<int:course_id>/",teacher_course_student,name="teacher-course-students"),
 path("teacher/result-edit/<int:enrollment_id>/",teacher_result_edit,name="teacher-result-edit"),
 
@@ -79,3 +79,9 @@ path(
 
 
 ]
+from django.shortcuts import render
+
+def custom_permission_denied_view(request, exception=None):
+    return render(request, "403.html", status=403)
+
+handler403 = custom_permission_denied_view

@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting database seed...")
 
-        # 1. Setup Groups and Django Model Permissions
+        # iss main  Setup Groups and Django Model Permissions  hain 
         admin_group, _ = Group.objects.get_or_create(name="Admin")
         teacher_group, _ = Group.objects.get_or_create(name="Teacher")
         student_group, _ = Group.objects.get_or_create(name="Student")
@@ -21,7 +21,7 @@ class Command(BaseCommand):
         student_ct = ContentType.objects.get_for_model(Student)
         enrollment_ct = ContentType.objects.get_for_model(Enrollment)
 
-        # Teacher model permissions
+        #  iss main Teacher model permissions
         teacher_perms = Permission.objects.filter(
             content_type__in=[course_ct, result_ct, student_ct, enrollment_ct],
             codename__in=[
@@ -32,13 +32,13 @@ class Command(BaseCommand):
         )
         teacher_group.permissions.set(teacher_perms)
 
-        # Admin model permissions
+        #  iss main Admin model permissions
         admin_perms = Permission.objects.filter(
             content_type__in=[course_ct, result_ct, student_ct, enrollment_ct]
         )
         admin_group.permissions.set(admin_perms)
 
-        # Student model permissions
+        #  iss main Student model permissions
         student_perms = Permission.objects.filter(
             content_type__in=[course_ct, enrollment_ct, result_ct],
             codename__in=["view_course", "view_enrollment", "view_result"]
@@ -47,7 +47,7 @@ class Command(BaseCommand):
 
         default_pwd = "Test@1234"
 
-        # 2. Create Users
+        #   Create Users
         # Admin
         admin_user, _ = User.objects.get_or_create(
             username="admin_user",

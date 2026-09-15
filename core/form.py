@@ -19,11 +19,13 @@ class RegisterationForm(forms.ModelForm):
     )
 
     name = forms.CharField(
-        max_length=100
+        max_length=100,
+        required=False
     )
 
     age = forms.IntegerField(
-        min_value=1
+        min_value=1,
+        required=False
     )
 
     class Meta:
@@ -36,6 +38,22 @@ class RegisterationForm(forms.ModelForm):
             "name",
             "age"
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        role = cleaned_data.get("role")
+        name = cleaned_data.get("name")
+        age = cleaned_data.get("age")
+
+        if role == "Student":
+            if not name:
+                self.add_error("name", "Name is required for students.")
+
+            if age is None:
+                self.add_error("age", "Age is required for students.")
+
+        return cleaned_data
 
     def save(self, commit=True):
 
@@ -61,8 +79,6 @@ class RegisterationForm(forms.ModelForm):
                     user=user,
                     name=self.cleaned_data["name"],
                     age=self.cleaned_data["age"],
-                    #email=user.email
                 )
 
         return user
-

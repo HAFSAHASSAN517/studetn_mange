@@ -1,27 +1,104 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Register</title>
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
 
-    <h1>Create Account</h1>
+    <div class="auth-page">
+        <div class="auth-card">
 
-    <form method="POST">
-        {% csrf_token %}
+            <div class="auth-icon">📝</div>
 
-        {{ form.as_p }}
+            <h1>Create Account</h1>
 
-        <button type="submit">Register</button>
-    </form>
+            <p class="subtitle">Register for the Student Management System</p>
 
-    <p>
-        Already have an account?
-        <a href="{% url 'login' %}">Login</a>
-    </p>
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    {{ form.non_field_errors }}
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.role.id_for_label }}">Role</label>
+                    {{ form.role }}
+                    {{ form.role.errors }}
+                </div>
+
+                <div id="student-fields">
+
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">Name</label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.age.id_for_label }}">Age</label>
+                        {{ form.age }}
+                        {{ form.age.errors }}
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary form-submit">
+                    Register
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+                Already have an account?
+                <a href="{% url 'login' %}">Login</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const roleField = document.getElementById("id_role");
+        const studentFields = document.getElementById("student-fields");
+
+        function toggleStudentFields() {
+            if (roleField.value === "Student") {
+                studentFields.style.display = "block";
+            } else {
+                studentFields.style.display = "none";
+            }
+        }
+
+        roleField.addEventListener("change", toggleStudentFields);
+
+        toggleStudentFields();
+    </script>
 
 </body>
 </html>

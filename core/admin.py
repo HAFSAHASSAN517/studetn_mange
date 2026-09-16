@@ -12,6 +12,11 @@ class AdminStudent(admin.ModelAdmin):
         return obj.user.email
 
     student_email.short_description = 'Email'
+    def get_queryset(self, request):
+        queryset = super.get_queryset(request)
+        if request.user.groups.filter(name="Student").exists():
+            return queryset
+        
 
 @admin.register(Course)
 class AdminCourse(admin.ModelAdmin):
@@ -24,6 +29,8 @@ class AdminCourse(admin.ModelAdmin):
 
         if request.user.groups.filter(name="Teacher").exists():
             return queryset.filter(assigned_teacher=request.user)
+        if request.user.groups.filter(name="Student").exists():
+            return queryset.filter(enrollment__student__user=request.user).distinct()
 
         return queryset
 
@@ -66,6 +73,11 @@ class AdminEnrollment(admin.ModelAdmin):
     list_display = ('student', 'course', 'enrollment_date')
     search_fields = ('student__name', 'course__title')
     list_filter = ('course', 'enrollment_date')
+    def get_queryset(self, request):
+      queyrset= super().get_queryset(request)
+      if request.user.groups.filter(name="Student").exists():
+          return queyrset.filter(student__user = request.user)
+      return queyrset
 
 
 @admin.register(Result)
@@ -73,7 +85,11 @@ class AdminResult(admin.ModelAdmin):
     list_display = ('enrollment', 'marks')
     search_fields = ('enrollment__student__name',)
     list_filter = ('marks',)
-
+    def get_queryset(self, request):
+        queryset=super().get_queryset(request)
+        if request.user.groups.filter(name="Student").exists():
+            return queryset.filter(enrollment__student__user = request.user)
+        return queryset
 
 admin.site.unregister(User)
 

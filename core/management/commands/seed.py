@@ -77,6 +77,7 @@ class Command(BaseCommand):
             email="student@sms.com"
         )
         seed_student_user.set_password(default_pwd)
+        seed_student_user.is_staff=True
         seed_student_user.save()
         seed_student_user.groups.add(student_group)
 

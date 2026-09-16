@@ -1,40 +1,121 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html>
-<head> <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>Login</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Student Management System</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
 
-    <h1>Login</h1>
+    <main class="auth-page">
 
-    {% if messages %}
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+        <div class="auth-card">
 
-    <form method="POST">
-    {% csrf_token %}
+            <div class="auth-icon">
+                🎓
+            </div>
 
-    <p>
-        <label>Username:</label>
-        <input type="text" name="username" required>
-    </p>
+            <h1>Welcome Back</h1>
 
-    <p>
-        <label>Password:</label>
-        <input type="password" name="password" required>
-    </p>
+            <p class="subtitle">
+                Sign in to your Student Management System account.
+            </p>
 
-    <button type="submit">Login</button>
-</form>
 
-    <p>
-        Don't have an account?
-        <a href="{% url 'register' %}">Register</a>
-    </p>
+            <!-- Messages -->
+            {% if messages %}
+
+                <div class="messages-container">
+
+                    {% for message in messages %}
+
+                        <div class="message">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Login Form -->
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary form-submit"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <div class="auth-footer">
+
+                <p>
+                    Don't have an account?
+                    <a href="{% url 'register' %}">
+                        Create an account
+                    </a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer class="footer">
+        <p>© 2026 Student Management System</p>
+    </footer>
 
 </body>
 </html>

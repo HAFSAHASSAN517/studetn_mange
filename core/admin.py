@@ -12,10 +12,14 @@ class AdminStudent(admin.ModelAdmin):
         return obj.user.email
 
     student_email.short_description = 'Email'
+
     def get_queryset(self, request):
-        queryset = super.get_queryset(request)
+        queryset = super().get_queryset(request)
+
         if request.user.groups.filter(name="Student").exists():
-            return queryset
+            return queryset.filter(user=request.user)
+
+        return queryset
         
 
 @admin.register(Course)
@@ -73,11 +77,17 @@ class AdminEnrollment(admin.ModelAdmin):
     list_display = ('student', 'course', 'enrollment_date')
     search_fields = ('student__name', 'course__title')
     list_filter = ('course', 'enrollment_date')
+
     def get_queryset(self, request):
-      queyrset= super().get_queryset(request)
-      if request.user.groups.filter(name="Student").exists():
-          return queyrset.filter(student__user = request.user)
-      return queyrset
+        queryset = super().get_queryset(request)
+
+        if request.user.groups.filter(name="Student").exists():
+            return queryset.filter(student__user=request.user)
+
+        if request.user.groups.filter(name="Teacher").exists():
+            return queryset.filter(course__assigned_teacher=request.user)
+
+        return queryset
 
 
 @admin.register(Result)
@@ -85,11 +95,44 @@ class AdminResult(admin.ModelAdmin):
     list_display = ('enrollment', 'marks')
     search_fields = ('enrollment__student__name',)
     list_filter = ('marks',)
+
     def get_queryset(self, request):
-        queryset=super().get_queryset(request)
+        queryset = super().get_queryset(request)
+
         if request.user.groups.filter(name="Student").exists():
-            return queryset.filter(enrollment__student__user = request.user)
+            return queryset.filter(enrollment__student__user=request.user)
+
+        if request.user.groups.filter(name="Teacher").exists():
+            return queryset.filter(
+                enrollment__course__assigned_teacher=request.user
+            )
+
         return queryset
+
+    def has_add_permission(self, request):
+       
+        if request.user.groups.filter(name="Admin").exists():
+            return False
+
+        return super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+       
+        if request.user.groups.filter(name="Admin").exists():
+            return False
+
+        if request.user.groups.filter(name="Teacher").exists():
+            if obj is not None:
+                return obj.enrollment.course.assigned_teacher == request.user
+
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        
+        if request.user.groups.filter(name="Admin").exists():
+            return False
+
+        return super().has_delete_permission(request, obj)
 
 admin.site.unregister(User)
 

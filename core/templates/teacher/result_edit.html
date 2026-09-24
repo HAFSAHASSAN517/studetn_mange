@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Result{% endblock %}
+{% block page_heading %}Academic Grading{% endblock %}
+{% block breadcrumb %}Upload Result{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Academic Management</div>
+    <a href="{% url 'teacher-courses' %}" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> Assigned Courses</a>
+
+    <div class="menu-title">Evaluation & Grading</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link active"><i class="fa-solid fa-square-poll-vertical"></i> Manage Marks</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-file-pen me-2"></i> Result Upload / Score Entry
+    </div>
+
+    <div class="card-custom-body">
+        <div class="alert alert-light border d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="mb-1 fw-bold text-dark">{{ enrollment.student.name }}</h5>
+                <div class="text-muted small">
+                    <span><strong>Subject:</strong> {{ enrollment.course.title }}</span> | 
+                    <span><strong>Duration:</strong> {{ enrollment.course.duration }}</span>
+                </div>
+            </div>
+            <span class="badge bg-primary px-3 py-2">Score Submission</span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="marks" class="form-label fw-bold">Test / Exam Score (Max 100)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    id="marks"
+                    name="marks"
+                    class="form-control"
+                    placeholder="Enter exam marks (0 - 100)"
+                    min="0"
+                    max="100"
+                    value="{% if enrollment.result %}{{ enrollment.result.marks }}{% endif %}"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="remarks" class="form-label fw-bold">Evaluation Remarks</label>
+                <textarea
+                    id="remarks"
+                    name="remarks"
+                    rows="4"
+                    class="form-control"
+                    placeholder="Provide performance feedback..."
+                >{% if enrollment.result %}{{ enrollment.result.remarks }}{% endif %}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fa-solid fa-check me-1"></i> Save Result
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

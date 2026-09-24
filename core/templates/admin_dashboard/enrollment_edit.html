@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Enrollment{% endblock %}
+{% block page_heading %}Admissions & Registration{% endblock %}
+{% block breadcrumb %}Modify Enrollment{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Student Affairs</div>
+    <a href="{% url 'enrollment-list' %}" class="nav-link active"><i class="fa-solid fa-id-card"></i> Enrollments</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-pen-to-square me-2"></i> Update Enrollment Record
+    </div>
+    <div class="card-custom-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="student" class="form-label fw-bold">Student</label>
+                <select id="student" name="student" class="form-select" required>
+                    {% for student in students %}
+                        <option value="{{ student.id }}" {% if student.id == enrollment.student.id %}selected{% endif %}>
+                            {{ student.name }} ({{ student.user.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="course" class="form-label fw-bold">Course</label>
+                <select id="course" name="course" class="form-select" required>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}" {% if course.id == enrollment.course.id %}selected{% endif %}>
+                            {{ course.title }} (Teacher: {{ course.assigned_teacher.username }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a href="{% url 'enrollment-list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-check me-1"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

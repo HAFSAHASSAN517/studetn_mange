@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block page_heading %}Student Academic Portal{% endblock %}
+{% block breadcrumb %}My Enrollments{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Academic Records</div>
+    <a href="{% url 'student-dashboard' %}" class="nav-link active">
+        <i class="fa-solid fa-graduation-cap"></i> Enrolled Courses
+    </a>
+    <a href="{% url 'student-profile' %}" class="nav-link">
+        <i class="fa-solid fa-id-badge"></i> My Profile
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white p-3 shadow-sm border-0">
+            <h2 class="fw-bold mb-0">{{ enrollments|length|default:"0" }}</h2>
+            <small>Active Enrollments</small>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-clipboard-list me-2"></i> Course Enrollments & Performance
+    </div>
+    <div class="card-custom-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Subject / Course</th>
+                        <th>Instructor</th>
+                        <th>Enrollment Date</th>
+                        <th>Final Score</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                    <tr>
+                        <td class="ps-3 fw-bold text-primary">{{ enrollment.course.title }}</td>
+                        <td><span class="badge bg-secondary">{{ enrollment.course.assigned_teacher.username }}</span></td>
+                        <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                        <td>
+                            {% if enrollment.result %}
+                                <span class="badge bg-success fs-6">{{ enrollment.result.marks }} / 100</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ enrollment.result.remarks|default:"No remarks logged" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">You are not enrolled in any courses.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

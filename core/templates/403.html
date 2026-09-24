@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - 404{% endblock %}
+{% block page_heading %}System Error{% endblock %}
+{% block breadcrumb %}404 Error{% endblock %}
+
+{% block navigation %}
+    <div class="menu-category">Main Console</div>
+    <a href="/" class="nav-link active"><i class="fa-solid fa-house"></i> Home</a>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="card-custom text-center p-5 shadow-sm" style="max-width: 500px;">
+        <div class="text-primary mb-3">
+            <i class="fa-solid fa-triangle-exclamation fa-4x"></i>
+        </div>
+        <h1 class="display-4 fw-bold text-dark mb-2">404</h1>
+        <h4 class="fw-semibold text-secondary mb-3">Page Not Found</h4>
+        <p class="text-muted small mb-4">
+            The page you are trying to reach does not exist, has been removed, or requires administrative permissions.
+        </p>
+        <div>
+            <a href="/" class="btn btn-primary px-4">
+                <i class="fa-solid fa-arrow-left me-1"></i> Return to Safety
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

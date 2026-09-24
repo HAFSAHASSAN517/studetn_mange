@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}AI Enrollment Report{% endblock %}
+{% block page_heading %}Institutional Intelligence{% endblock %}
+{% block breadcrumb %}AI Enrollment Report{% endblock %}
+
+{% block navigation %}
+    <div class="menu-category">Main Console</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-category">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-user-graduate"></i> Student Records</a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link"><i class="fa-solid fa-address-card"></i> Manage Registrations</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-file-lines me-2"></i> Institutional Enrollment Analysis Report</span>
+        <div>
+            <a href="{% url 'admin-dashboard' %}" class="btn btn-sm btn-outline-light">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card-custom-body">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 text-muted small">
+            <span><strong>Model:</strong> Gemini Flash</span>
+            <span><strong>Registrations Evaluated:</strong> {{ total_enrollments }} Total Records</span>
+            <span><strong>Storage:</strong> Not Stored in Database (Per Rubric)</span>
+        </div>
+
+        {% if report %}
+            <div class="p-4 bg-light border rounded text-dark" style="line-height: 1.9; font-size: 0.95rem;">
+                {{ report|linebreaks }}
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <h5>No Report Available</h5>
+                <a href="{% url 'admin-dashboard' %}" class="btn btn-primary btn-sm mt-2">Go to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

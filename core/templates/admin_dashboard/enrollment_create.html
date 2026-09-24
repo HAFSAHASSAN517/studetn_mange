@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Create Enrollment{% endblock %}
+{% block page_heading %}Admissions & Registration{% endblock %}
+{% block breadcrumb %}Register Student{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-user-graduate"></i> Student Records</a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link"><i class="fa-solid fa-id-card"></i> Enrollments</a>
+    <a href="{% url 'enrollment-create' %}" class="nav-link active"><i class="fa-solid fa-user-plus"></i> New Enrollment</a>
+
+    <div class="menu-title">Academic Department</div>
+    <a href="{% url 'course-list' %}" class="nav-link"><i class="fa-solid fa-book"></i> Courses</a>
+    <a href="{% url 'teacher-list' %}" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> Teachers</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-user-plus me-2"></i> Enroll Student in Course
+    </div>
+
+    <div class="card-custom-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="student" class="form-label fw-bold">Select Student</label>
+                <select id="student" name="student" class="form-select" required>
+                    <option value="">-- Choose Student --</option>
+                    {% for student in students %}
+                        <option value="{{ student.id }}">{{ student.name }} ({{ student.user.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="course" class="form-label fw-bold">Select Course / Subject</label>
+                <select id="course" name="course" class="form-select" required>
+                    <option value="">-- Choose Course --</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }} (Teacher: {{ course.assigned_teacher.username }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a href="{% url 'enrollment-list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-check me-1"></i> Confirm Enrollment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

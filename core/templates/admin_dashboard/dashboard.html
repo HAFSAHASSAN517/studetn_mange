@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_heading %}Administrative Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block navigation %}
+    <div class="menu-category">Main Console</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link active">
+        <i class="fa-solid fa-gauge"></i> Overview
+    </a>
+
+    <div class="menu-category">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link">
+        <i class="fa-solid fa-user-graduate"></i> Student Records
+    </a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link">
+        <i class="fa-solid fa-address-card"></i> Manage Registrations
+    </a>
+    <a href="{% url 'enrollment-create' %}" class="nav-link">
+        <i class="fa-solid fa-user-plus"></i> New Enrollment
+    </a>
+
+    <div class="menu-category">Academic Department</div>
+    <a href="{% url 'course-list' %}" class="nav-link">
+        <i class="fa-solid fa-book-open"></i> Course Offerings
+    </a>
+    <a href="{% url 'teacher-list' %}" class="nav-link">
+        <i class="fa-solid fa-chalkboard-user"></i> Faculty Members
+    </a>
+{% endblock %}
+
+{% block content %}
+<!-- Four Metric Cards -->
+<div class="row g-3 mb-4">
+    <!-- Box 1: Blue -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="card text-white bg-primary shadow-sm h-100 border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ students.paginator.count|default:"6" }}</h2>
+                    <p class="mb-0 small">Total Students</p>
+                </div>
+                <i class="fa-solid fa-user-graduate fa-2x opacity-50"></i>
+            </div>
+            <a href="{% url 'admin-dashboard' %}" class="stat-footer">
+                More info <i class="fa-solid fa-circle-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Box 2: Green -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="card text-white bg-success shadow-sm h-100 border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ teachers|length|default:"4" }}</h2>
+                    <p class="mb-0 small">Total Teachers</p>
+                </div>
+                <i class="fa-solid fa-chalkboard-user fa-2x opacity-50"></i>
+            </div>
+            <a href="{% url 'teacher-list' %}" class="stat-footer">
+                More info <i class="fa-solid fa-circle-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Box 3: Yellow -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="card text-white bg-warning shadow-sm h-100 border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-0">Courses</h2>
+                    <p class="mb-0 small">Course Offerings</p>
+                </div>
+                <i class="fa-solid fa-book-open fa-2x opacity-50"></i>
+            </div>
+            <a href="{% url 'course-list' %}" class="stat-footer">
+                Manage Courses <i class="fa-solid fa-circle-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Box 4: Red (Full Enrollment Report via POST) -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="card text-white bg-danger shadow-sm h-100 border-0">
+            <div class="card-body d-flex justify-content-between align-items-center pb-2">
+                <div>
+                    <h4 class="fw-bold mb-0">AI Report</h4>
+                    <p class="mb-0 small">Enrollment Summary</p>
+                </div>
+                <i class="fa-solid fa-brain fa-2x opacity-50"></i>
+            </div>
+            
+            <form method="POST" action="{% url 'generate-enrollment-report' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="stat-footer border-0 w-100 bg-black bg-opacity-25 text-white py-2">
+                    Generate Full Report <i class="fa-solid fa-arrow-right ms-1"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Student Directory Table -->
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-users me-2"></i> Student Directory</span>
+    </div>
+
+    <div class="card-custom-body p-0">
+        {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Name</th>
+                            <th>Email</th>
+                            <th>Age</th>
+                            <th>Enrolled On</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td class="ps-3 fw-bold">
+                                    <a href="{% url 'student-detail' student.id %}" class="text-primary text-decoration-none">
+                                        {{ student.name }}
+                                    </a>
+                                </td>
+                                <td>{{ student.user.email }}</td>
+                                <td>{{ student.age }}</td>
+                                <td>{{ student.enrolled_on|date:"M d, Y" }}</td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'student-detail' student.id %}" class="btn btn-outline-primary" title="View Details">
+                                            <i class="fa-solid fa-eye me-1"></i> View
+                                        </a>
+                                        <a href="{% url 'student-edit' student.id %}" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <a href="{% url 'student-delete' student.id %}" class="btn btn-outline-danger" title="Delete">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <h5>No Students Found</h5>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

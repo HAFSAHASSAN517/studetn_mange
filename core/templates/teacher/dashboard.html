@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block page_heading %}Teacher Workspace{% endblock %}
+{% block breadcrumb %}My Courses{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link active">
+        <i class="fa-solid fa-gauge"></i> Overview
+    </a>
+
+    <div class="menu-title">Academic Management</div>
+    <a href="{% url 'teacher-courses' %}" class="nav-link">
+        <i class="fa-solid fa-chalkboard-user"></i> Assigned Courses
+    </a>
+    <a href="{% url 'teacher-course-create' %}" class="nav-link">
+        <i class="fa-solid fa-folder-plus"></i> Add Course
+    </a>
+
+    <div class="menu-title">Evaluation & Grading</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link">
+        <i class="fa-solid fa-square-poll-vertical"></i> Manage Marks
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white p-3 shadow-sm border-0">
+            <h2 class="fw-bold mb-0">{{ courses.paginator.count|default:"0" }}</h2>
+            <small>My Assigned Courses</small>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-book-open me-2"></i> Assigned Subjects</span>
+        <a href="{% url 'teacher-course-create' %}" class="btn btn-sm btn-light text-primary fw-bold">
+            <i class="fa-solid fa-plus me-1"></i> Add Course
+        </a>
+    </div>
+    <div class="card-custom-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Subject / Course</th>
+                        <th>Duration</th>
+                        <th>Description</th>
+                        <th class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td class="ps-3 fw-bold text-primary">{{ course.title }}</td>
+                        <td><span class="badge bg-secondary">{{ course.duration }}</span></td>
+                        <td class="text-muted small">{{ course.description|truncatewords:10 }}</td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'teacher-course-students' course.id %}" class="btn btn-sm btn-outline-primary">Students</a>
+                            <a href="{% url 'teacher-course-edit' course.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'teacher-course-delete' course.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No courses assigned to you yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

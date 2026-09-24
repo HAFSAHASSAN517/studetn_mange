@@ -1,0 +1,250 @@
+/* ==========================================================================
+   STUDENT MANAGEMENT SYSTEM - BOOTSTRAP 5 / ADMINLTE COMPATIBLE THEME
+   ========================================================================== */
+
+/* 1. Global Reset & Typography */
+:root {
+  --admin-blue: #007bff;
+  --admin-blue-hover: #0069d9;
+  --sidebar-dark: #343a40;
+  --sidebar-darker: #292d32;
+  --sidebar-border: #4b545c;
+  --sidebar-text: #c2c7d0;
+  --bg-light-canvas: #f4f6f9;
+}
+
+body {
+  background-color: var(--bg-light-canvas);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #212529;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* 2. Core Layout Wrapper */
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* 3. Left Navigation Bar (Pic 1 & 2 Style) */
+.sidebar {
+  width: 250px;
+  background-color: var(--sidebar-dark);
+  color: var(--sidebar-text);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  z-index: 1020;
+}
+
+.sidebar-brand {
+  padding: 16px 20px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-brand i {
+  color: var(--admin-blue);
+  font-size: 1.3rem;
+}
+
+.sidebar-user {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.sidebar-user i {
+  color: #8c98a4;
+}
+
+/* Mentor-friendly category headers */
+.menu-category {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #838e99;
+  padding: 14px 20px 6px;
+  font-weight: 700;
+}
+
+/* Sidebar navigation links */
+.sidebar .nav-link {
+  color: var(--sidebar-text);
+  padding: 9px 18px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 4px;
+  margin: 2px 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar .nav-link i {
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+  background-color: var(--admin-blue) !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* 4. Main Body Wrapper */
+.content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-light-canvas);
+  min-width: 0;
+}
+
+/* Top Navbar */
+.topbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Breadcrumb & Subheading area */
+.content-header {
+  padding: 18px 24px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: #6c757d;
+}
+
+.main-content {
+  padding: 12px 24px 35px;
+}
+
+/* 5. Blue Box Header Card (Pic 1 & 3 UI) */
+.card-custom {
+  border: 1px solid #dcdfe3;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.card-custom-header {
+  background-color: var(--admin-blue);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 10px 16px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.card-custom-body {
+  padding: 20px;
+}
+
+/* 6. Refined Tables & Form Elements */
+.table thead th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f4f8;
+}
+
+.form-control, .form-select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--admin-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.2);
+}
+
+/* 7. Overview Dashboard Stat Cards (Pic 2) */
+.stat-box {
+  border-radius: 4px;
+  color: #ffffff;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-box-footer {
+  background-color: rgba(0, 0, 0, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 0.85rem;
+  text-decoration: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.stat-box-footer:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+}
+
+/* 8. Mobile Responsiveness */
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

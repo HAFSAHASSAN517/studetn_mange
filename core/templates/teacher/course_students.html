@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Enrolled Students - {{ course.title }}{% endblock %}
+{% block page_heading %}{{ course.title }}{% endblock %}
+{% block breadcrumb %}Enrolled Candidates{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Academic Management</div>
+    <a href="{% url 'teacher-courses' %}" class="nav-link active"><i class="fa-solid fa-chalkboard-user"></i> Assigned Courses</a>
+
+    <div class="menu-title">Evaluation & Grading</div>
+    <a href="{% url 'teacher-dashboard' %}" class="nav-link"><i class="fa-solid fa-square-poll-vertical"></i> Manage Marks</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-users me-2"></i> Enrolled Candidates List</span>
+        <a href="{% url 'teacher-courses' %}" class="btn btn-sm btn-light text-primary fw-bold">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Courses
+        </a>
+    </div>
+
+    <div class="card-custom-body p-0">
+        {% if enrollments %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Student Name</th>
+                            <th>Registration Date</th>
+                            <th>Obtained Score</th>
+                            <th>Remarks</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold text-dark">{{ enrollment.student.name }}</div>
+                                    <small class="text-muted">{{ enrollment.student.user.email }}</small>
+                                </td>
+                                <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if enrollment.result %}
+                                        <span class="badge bg-success fs-6">{{ enrollment.result.marks }} / 100</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ enrollment.result.remarks|default:"No remarks logged" }}</td>
+                                <td class="text-end pe-3">
+                                    <a href="{% url 'teacher-result-edit' enrollment.id %}" class="btn btn-sm btn-primary">
+                                        {% if enrollment.result %}
+                                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit Score
+                                        {% else %}
+                                            <i class="fa-solid fa-plus me-1"></i> Add Score
+                                        {% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fa-solid fa-user-xmark fa-3x mb-3 text-secondary"></i>
+                <h5>No Students Enrolled</h5>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

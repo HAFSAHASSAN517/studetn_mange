@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Course Enrollments{% endblock %}
+{% block page_heading %}Admissions & Registration{% endblock %}
+{% block breadcrumb %}Manage Enrollments{% endblock %}
+
+{% block navigation %}
+    <div class="menu-category">Main Console</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link">
+        <i class="fa-solid fa-gauge"></i> Overview
+    </a>
+
+    <div class="menu-category">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link">
+        <i class="fa-solid fa-user-graduate"></i> Student Records
+    </a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link active">
+        <i class="fa-solid fa-address-card"></i> Manage Registrations
+    </a>
+    <a href="{% url 'enrollment-create' %}" class="nav-link">
+        <i class="fa-solid fa-user-plus"></i> New Enrollment
+    </a>
+
+    <div class="menu-category">Academic Department</div>
+    <a href="{% url 'course-list' %}" class="nav-link">
+        <i class="fa-solid fa-book-open"></i> Course Offerings
+    </a>
+    <a href="{% url 'teacher-list' %}" class="nav-link">
+        <i class="fa-solid fa-chalkboard-user"></i> Faculty Members
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-address-book me-2"></i> Active Student Registrations</span>
+        <a href="{% url 'enrollment-create' %}" class="btn btn-sm btn-light text-primary fw-semibold">
+            <i class="fa-solid fa-plus me-1"></i> New Enrollment
+        </a>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card-custom-body border-bottom bg-light py-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control"
+                    placeholder="Search by student or course..."
+                    value="{{ query }}"
+                >
+            </div>
+            <div class="col-md-4">
+                <select name="course" class="form-select">
+                    <option value="">All Courses</option>
+                    {% for c in courses %}
+                        <option value="{{ c.id }}" {% if course_id and c.id|stringformat:"s" == course_id|stringformat:"s" %}selected{% endif %}>
+                            {{ c.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter me-1"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="card-custom-body p-0">
+        {% if enrollments %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Student Name</th>
+                            <th>Course</th>
+                            <th>Assigned Faculty</th>
+                            <th>Enrolled Date</th>
+                            <th>Score</th>
+                            <th>Remarks</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                            <tr>
+                                <td class="ps-3 fw-bold">
+                                    <a href="{% url 'student-detail' enrollment.student.id %}" class="text-primary text-decoration-none">
+                                        {{ enrollment.student.name }}
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-primary">{{ enrollment.course.title }}</span></td>
+                                <td>{{ enrollment.course.assigned_teacher.username }}</td>
+                                <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if enrollment.get_result %}
+                                        <span class="badge bg-success fs-6">{{ enrollment.get_result.marks }} / 100</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Graded</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">
+                                    {% if enrollment.get_result and enrollment.get_result.remarks %}
+                                        {{ enrollment.get_result.remarks|truncatewords:6 }}
+                                    {% else %}
+                                        <span class="fst-italic text-secondary">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'enrollment-edit' enrollment.id %}" class="btn btn-outline-secondary" title="Edit Enrollment">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <a href="{% url 'enrollment-delete' enrollment.id %}" class="btn btn-outline-danger" title="Delete Enrollment">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fa-solid fa-folder-open fa-3x mb-3 text-secondary"></i>
+                <h5>No Registrations Found</h5>
+                <p class="small">Try adjusting search filters or enroll a new student.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if enrollments.has_other_pages %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+        <small class="text-muted">Showing page {{ enrollments.number }} of {{ enrollments.paginator.num_pages }}</small>
+        <ul class="pagination pagination-sm m-0">
+            {% if enrollments.has_previous %}
+                <li class="page-item"><a class="page-link" href="?q={{ query }}{% if course_id %}&course={{ course_id }}{% endif %}&page={{ enrollments.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            {% if enrollments.has_next %}
+                <li class="page-item"><a class="page-link" href="?q={{ query }}{% if course_id %}&course={{ course_id }}{% endif %}&page={{ enrollments.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

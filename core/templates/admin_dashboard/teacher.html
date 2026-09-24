@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Directory{% endblock %}
+{% block page_heading %}Academic Department{% endblock %}
+{% block breadcrumb %}Teachers{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-user-graduate"></i> Student Records</a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link"><i class="fa-solid fa-id-card"></i> Enrollments</a>
+
+    <div class="menu-title">Academic Department</div>
+    <a href="{% url 'course-list' %}" class="nav-link"><i class="fa-solid fa-book"></i> Courses</a>
+    <a href="{% url 'teacher-list' %}" class="nav-link active"><i class="fa-solid fa-chalkboard-user"></i> Teachers</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-chalkboard-user me-2"></i> Registered Faculty Members
+    </div>
+    <div class="card-custom-body p-0">
+        {% if teachers %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Teacher Username</th>
+                            <th>Email Address</th>
+                            <th class="text-center">Assigned Courses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for teacher in teachers %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">{{ teacher.username }}</td>
+                                <td>{{ teacher.email|default:"N/A" }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary px-3 py-2">{{ teacher.course_set.count }} Courses</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
+                <p>No faculty accounts found.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

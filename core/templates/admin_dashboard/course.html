@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Course Management{% endblock %}
+{% block page_heading %}Academic Department{% endblock %}
+{% block breadcrumb %}Course Catalog{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Main</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-gauge"></i> Overview</a>
+
+    <div class="menu-title">Student Affairs</div>
+    <a href="{% url 'admin-dashboard' %}" class="nav-link"><i class="fa-solid fa-user-graduate"></i> Student Records</a>
+    <a href="{% url 'enrollment-list' %}" class="nav-link"><i class="fa-solid fa-id-card"></i> Enrollments</a>
+
+    <div class="menu-title">Academic Department</div>
+    <a href="{% url 'course-list' %}" class="nav-link active"><i class="fa-solid fa-book"></i> Courses</a>
+    <a href="{% url 'teacher-list' %}" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> Teachers</a>
+{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-book me-2"></i> Course Catalog</span>
+        <a href="{% url 'course-create' %}" class="btn btn-sm btn-light text-primary fw-bold">
+            <i class="fa-solid fa-plus me-1"></i> Add Course
+        </a>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card-custom-body border-bottom bg-light py-3">
+        <form method="GET" class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="q" class="form-control" placeholder="Search by course title..." value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="teacher" class="form-select">
+                    <option value="">All Teachers</option>
+                    {% for teacher in teachers %}
+                        <option value="{{ teacher.id }}" {% if teacher_id and teacher.id|stringformat:"s" == teacher_id|stringformat:"s" %}selected{% endif %}>
+                            {{ teacher.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-custom-body p-0">
+        {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Course Title</th>
+                            <th>Assigned Faculty</th>
+                            <th>Duration</th>
+                            <th>Description</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">{{ course.title }}</td>
+                                <td><span class="badge bg-secondary">{{ course.assigned_teacher.username }}</span></td>
+                                <td>{{ course.duration }}</td>
+                                <td class="text-muted small">{{ course.description|truncatewords:10 }}</td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'course-edit' course.id %}" class="btn btn-outline-secondary">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a href="{% url 'course-delete' course.id %}" class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <h5>No Courses Found</h5>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if courses.has_other_pages %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+        <small class="text-muted">Page {{ courses.number }} of {{ courses.paginator.num_pages }}</small>
+        <ul class="pagination pagination-sm m-0">
+            {% if courses.has_previous %}
+                <li class="page-item"><a class="page-link" href="?q={{ query }}{% if teacher_id %}&teacher={{ teacher_id }}{% endif %}&page={{ courses.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            {% if courses.has_next %}
+                <li class="page-item"><a class="page-link" href="?q={{ query }}{% if teacher_id %}&teacher={{ teacher_id }}{% endif %}&page={{ courses.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

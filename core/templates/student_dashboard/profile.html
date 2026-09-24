@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block page_heading %}Student Portal{% endblock %}
+{% block breadcrumb %}My Profile{% endblock %}
+
+{% block navigation %}
+    <div class="menu-title">Academic Records</div>
+    <a href="{% url 'student-dashboard' %}" class="nav-link">
+        <i class="fa-solid fa-graduation-cap"></i> Enrolled Courses
+    </a>
+    <a href="{% url 'student-profile' %}" class="nav-link active">
+        <i class="fa-solid fa-id-badge"></i> My Profile
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card-custom">
+            <div class="card-custom-header">
+                <i class="fa-solid fa-id-card-clip me-2"></i> Profile Information
+            </div>
+            <div class="card-custom-body">
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Student Name:</strong> <span>{{ student.name }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Username:</strong> <span>{{ student.user.username }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Email Address:</strong> <span>{{ student.user.email }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Age:</strong> <span>{{ student.age }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>Registration Date:</strong> <span>{{ student.enrolled_on|date:"M d, Y" }}</span>
+                    </li>
+                </ul>
+                <a href="{% url 'student-dashboard' %}" class="btn btn-secondary btn-sm">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

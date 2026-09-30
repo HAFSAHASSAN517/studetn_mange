@@ -39,11 +39,13 @@ def register(request):
     if role:
       group, _ = Group.objects.get_or_create(name=role)
       user.groups.add(group) 
+      
+
       if role == "Student":
         Student.objects.create(
             user=user,
             name=username,
-            
+            email=email,
             age=18,
         )
 

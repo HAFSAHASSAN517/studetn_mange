@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
-
+from .models import Notice
 from .models import Course, Enrollment, Result
 from .decorators import role_required
 
@@ -17,7 +17,12 @@ def teacher_dashboard(request):
     courses = Course.objects.filter(
         assigned_teacher=request.user
     )
+    
+    
+    
+    notices = Notice.objects.all()[:5]
 
+    
     paginator = Paginator(courses, 5)
 
     page_number = request.GET.get("page")
@@ -28,7 +33,8 @@ def teacher_dashboard(request):
         request,
         "teacher/dashboard.html",
         {
-            "courses": courses
+            "courses": courses,
+            "notices":notices,
         }
     )
 

@@ -37,6 +37,10 @@ from .admin_views import (
     enrollment_edit,
     enrollment_delete,
     teacher_list,
+    notice_create,
+    notice_delete,
+    notice_edit,
+    notice_list
 )
 
 from .teacher_views import (
@@ -169,7 +173,11 @@ urlpatterns = [  path("", lambda request: redirect("login")),
         enrollment_delete,
         name="enrollment-delete"
     ),
-
+    # Notice Board (Admin CRUD)
+    path('notices/', notice_list, name='notice-list'),
+    path('notices/create/', notice_create, name='notice-create'),
+    path('notices/<int:notice_id>/edit/', notice_edit, name='notice-edit'),
+    path('notices/<int:notice_id>/delete/', notice_delete, name='notice-delete'),
 
     # =====================================================
     # TEACHER

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Notice{% endblock %}
+{% block page_heading %}Announcements{% endblock %}
+{% block breadcrumb %}{{ action }} Notice{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-pen-to-square me-2"></i> {{ action }} Institutional Notice
+    </div>
+    <div class="card-custom-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="title" class="form-label fw-bold">Notice Headline / Title</label>
+                <input type="text" id="title" name="title" class="form-control" value="{{ notice.title|default:'' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label fw-bold">Notice Body</label>
+                <textarea id="content" name="content" rows="5" class="form-control" required>{{ notice.content|default:'' }}</textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a href="{% url 'notice-list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-check me-1"></i> Publish Notice
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

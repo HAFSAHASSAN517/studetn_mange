@@ -23,6 +23,30 @@
     </div>
 </div>
 
+<!-- Campus Announcements (Read-Only) -->
+<div class="card-custom mb-4">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-bullhorn me-2"></i> Campus Announcements
+    </div>
+    <div class="card-custom-body p-0">
+        {% if notices %}
+            <div class="list-group list-group-flush">
+                {% for n in notices %}
+                    <div class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold text-primary mb-0">{{ n.title }}</h6>
+                            <small class="text-muted">{{ n.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="text-secondary small mb-0">{{ n.content|linebreaksbr }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-3 text-muted small">No announcements posted.</div>
+        {% endif %}
+    </div>
+</div>
+
 <div class="card-custom">
     <div class="card-custom-header">
         <i class="fa-solid fa-clipboard-list me-2"></i> Course Enrollments & Performance
@@ -46,13 +70,19 @@
                         <td><span class="badge bg-secondary">{{ enrollment.course.assigned_teacher.username }}</span></td>
                         <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
                         <td>
-                            {% if enrollment.result %}
-                                <span class="badge bg-success fs-6">{{ enrollment.result.marks }} / 100</span>
+                            {% if enrollment.get_result %}
+                                <span class="badge bg-success fs-6">{{ enrollment.get_result.marks }} / 100</span>
                             {% else %}
                                 <span class="badge bg-warning text-dark">Pending</span>
                             {% endif %}
                         </td>
-                        <td class="text-muted small">{{ enrollment.result.remarks|default:"No remarks logged" }}</td>
+                        <td class="text-muted small">
+                            {% if enrollment.get_result and enrollment.get_result.remarks %}
+                                {{ enrollment.get_result.remarks }}
+                            {% else %}
+                                <span class="fst-italic text-secondary">No remarks logged</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>

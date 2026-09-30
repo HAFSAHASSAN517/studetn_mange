@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 
-from .models import Student, Course, Enrollment
+
+from .models import Student, Course, Enrollment,Notice
 from .decorators import role_required
 
 
@@ -586,3 +587,48 @@ def teacher_list(request):
             "teachers": teachers
         }
     )
+@role_required("Admin")
+def notice_list(request):
+    notices= Notice.objects.all()
+    return render(request,"admin_dashboard/notice_list.html",{"notices":notices})
+@role_required("Admin")
+def notice_create(request):
+    if request.method == "POST":
+        title= request.POST.get("title")
+        content= request.POST.get("content")
+        if title and content:
+            Notice.objects.create(
+                title=title,
+                content=content,
+                created_by= request.user,
+            )
+            messages.success(request,"notice posted successfully")
+            return redirect("notice-list")
+        
+        messages.error(request,"all fields are required")
+    return render(request,"admin_dashboard/notice_form.html",{"action":"Created"})
+@role_required("Admin")
+def notice_edit(request,notice_id):
+    notice = get_object_or_404(Notice,id=notice_id)
+    if request.method == "POST":
+        title= request.POST.get("title")
+        content = request.POST.get("content")
+        if title and content:
+            notice.title=title
+            notice.content = content
+            notice.save()
+            messages.success(request,"notice updated successfully")
+            return redirect("notice-list")
+        else:
+            messages.error(request,"all fields are required")
+    return render(request,"admin_dashboard/notice_form.html", {"notice":notice,"action":"Edit"})
+@role_required("Admin")
+def notice_delete(request,notice_id):
+    notice= get_object_or_404(Notice,id = notice_id)
+    if request.method=="POST":
+        notice.delete()
+        messages.success(request,"notice deleted successfully")
+        return redirect("notice-list")
+    return render(request,"admin_dashboard/notice_delete.html",{"notice":notice})    
+     
+        

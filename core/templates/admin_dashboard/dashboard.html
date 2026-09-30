@@ -27,7 +27,12 @@
     </a>
     <a href="{% url 'teacher-list' %}" class="nav-link">
         <i class="fa-solid fa-chalkboard-user"></i> Faculty Members
+    
+    
     </a>
+    <div class="menu-category">Communication</div>
+    <a href="{% url 'notice-list'%}" class="nav-link">
+        <i class = "fa-solid fa-bullhorn"></i> Notice Board </a>
 {% endblock %}
 
 {% block content %}

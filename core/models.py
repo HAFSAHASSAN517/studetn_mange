@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
-# Create your models here.
+
 class Student(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE)
   name = models.CharField(max_length=100)
@@ -59,3 +59,14 @@ class Result(models.Model):
 
   def __str__(self):
     return f'{self.enrollment} - {self.marks}'
+  
+class Notice(models.Model):
+  title=models.CharField(max_length=200)
+  content=models.TextField()
+  created_at=models.DateTimeField(auto_now_add=True)
+  created_by = models.ForeignKey(User,on_delete= models.CASCADE)
+  class Meta:
+    ordering=['-created_at']
+  def __str__(self):
+    return self.title  
+    

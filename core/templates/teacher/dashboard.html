@@ -1,76 +1,120 @@
 {% extends "base.html" %}
 
-{% block page_heading %}Teacher Workspace{% endblock %}
-{% block breadcrumb %}My Courses{% endblock %}
+{% block title %}Faculty Portal{% endblock %}
+{% block page_heading %}Faculty Academic Portal{% endblock %}
+{% block breadcrumb %}Assigned Courses{% endblock %}
 
 {% block navigation %}
-    <div class="menu-title">Main</div>
+    <div class="menu-category">Teaching</div>
     <a href="{% url 'teacher-dashboard' %}" class="nav-link active">
-        <i class="fa-solid fa-gauge"></i> Overview
-    </a>
-
-    <div class="menu-title">Academic Management</div>
-    <a href="{% url 'teacher-courses' %}" class="nav-link">
-        <i class="fa-solid fa-chalkboard-user"></i> Assigned Courses
-    </a>
-    <a href="{% url 'teacher-course-create' %}" class="nav-link">
-        <i class="fa-solid fa-folder-plus"></i> Add Course
-    </a>
-
-    <div class="menu-title">Evaluation & Grading</div>
-    <a href="{% url 'teacher-dashboard' %}" class="nav-link">
-        <i class="fa-solid fa-square-poll-vertical"></i> Manage Marks
+        <i class="fa-solid fa-chalkboard-user"></i> My Courses
     </a>
 {% endblock %}
 
 {% block content %}
-<div class="row g-3 mb-4">
+<!-- Metric Card & Create Button -->
+<div class="row g-3 mb-4 align-items-center">
     <div class="col-md-4">
-        <div class="card bg-primary text-white p-3 shadow-sm border-0">
-            <h2 class="fw-bold mb-0">{{ courses.paginator.count|default:"0" }}</h2>
-            <small>My Assigned Courses</small>
+        <div class="card bg-success text-white p-3 shadow-sm border-0">
+            <h2 class="fw-bold mb-0">{{ courses.paginator.count|default:courses|length|default:"0" }}</h2>
+            <small>Assigned Courses</small>
         </div>
+    </div>
+    <div class="col-md-8 text-md-end">
+        <a href="{% url 'teacher-course-create' %}" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus-circle me-1"></i> Add New Course
+        </a>
     </div>
 </div>
 
-<div class="card-custom">
-    <div class="card-custom-header d-flex justify-content-between align-items-center">
-        <span><i class="fa-solid fa-book-open me-2"></i> Assigned Subjects</span>
-        <a href="{% url 'teacher-course-create' %}" class="btn btn-sm btn-light text-primary fw-bold">
-            <i class="fa-solid fa-plus me-1"></i> Add Course
-        </a>
+<!-- Campus Announcements -->
+<div class="card-custom mb-4">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-bullhorn me-2"></i> Campus Announcements
     </div>
     <div class="card-custom-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-3">Subject / Course</th>
-                        <th>Duration</th>
-                        <th>Description</th>
-                        <th class="text-end pe-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for course in courses %}
-                    <tr>
-                        <td class="ps-3 fw-bold text-primary">{{ course.title }}</td>
-                        <td><span class="badge bg-secondary">{{ course.duration }}</span></td>
-                        <td class="text-muted small">{{ course.description|truncatewords:10 }}</td>
-                        <td class="text-end pe-3">
-                            <a href="{% url 'teacher-course-students' course.id %}" class="btn btn-sm btn-outline-primary">Students</a>
-                            <a href="{% url 'teacher-course-edit' course.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <a href="{% url 'teacher-course-delete' course.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">No courses assigned to you yet.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% if notices %}
+            <div class="list-group list-group-flush">
+                {% for n in notices %}
+                    <div class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold text-primary mb-0">{{ n.title }}</h6>
+                            <small class="text-muted">{{ n.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="text-secondary small mb-0">{{ n.content|linebreaksbr }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-3 text-muted small">No announcements posted.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Courses Table with Edit / Delete / Students Actions -->
+<div class="card-custom">
+    <div class="card-custom-header">
+        <i class="fa-solid fa-book-open me-2"></i> My Assigned Courses
+    </div>
+    <div class="card-custom-body p-0">
+        {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Course Title</th>
+                            <th>Duration</th>
+                            <th>Description</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-primary">{{ course.title }}</td>
+                                <td>{{ course.duration }}</td>
+                                <td class="text-muted small">{{ course.description|truncatewords:8 }}</td>
+                                <td class="text-end pe-3">
+                                    <!-- Students & Marks Button -->
+                                    <a href="{% url 'teacher-course-students' course.id %}" class="btn btn-sm btn-outline-primary me-1" title="View Enrolled Students & Enter Marks">
+                                        <i class="fa-solid fa-users me-1"></i> Students & Grades
+                                    </a>
+                                    <!-- Edit Button -->
+                                    <a href="{% url 'teacher-course-edit' course.id %}" class="btn btn-sm btn-outline-secondary me-1" title="Edit Course">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <!-- Delete Button -->
+                                    <a href="{% url 'teacher-course-delete' course.id %}" class="btn btn-sm btn-outline-danger" title="Delete Course">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if courses.has_other_pages %}
+                <div class="p-3 d-flex justify-content-center">
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if courses.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ courses.previous_page_number }}">Previous</a></li>
+                        {% endif %}
+                        <li class="page-item disabled"><span class="page-link">Page {{ courses.number }} of {{ courses.paginator.num_pages }}</span></li>
+                        {% if courses.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ courses.next_page_number }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <h5>No Courses Created Yet</h5>
+                <p class="small">Click "Add New Course" above to create your first course offering.</p>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

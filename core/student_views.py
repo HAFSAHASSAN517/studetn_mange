@@ -1,54 +1,48 @@
-from django.shortcuts import render, get_object_or_404
-
-from .models import Student, Enrollment
+from django.shortcuts import get_object_or_404, render
 from .decorators import role_required
+from .models import Enrollment, Notice, Student
 
 
 # =========================================================
 # STUDENT DASHBOARD
 # =========================================================
 
+
 @role_required("Student")
 def student_dashboard(request):
+  student, created = Student.objects.get_or_create(
+      user=request.user,
+      defaults={
+          "name": request.user.username,
+          "age": 18,
+      },
+  )
 
-    student = get_object_or_404(
-        Student,
-        user=request.user
-    )
+  enrollments = Enrollment.objects.filter(student=student).select_related(
+      "course", "course__assigned_teacher"
+  )
+  notices = Notice.objects.all()
 
-    enrollments = Enrollment.objects.filter(
-        student=student
-    ).select_related(
-        "course",
-        "course__assigned_teacher"
-    )
-
-    return render(
-        request,
-        "student_dashboard/dashboard.html",
-        {
-            "student": student,
-            "enrollments": enrollments
-        }
-    )
+  return render(
+      request,
+      "student_dashboard/dashboard.html",
+      {
+          "student": student,
+          "enrollments": enrollments,
+          "notices": notices,
+      },
+  )
 
 
 # =========================================================
 # STUDENT PROFILE
 # =========================================================
 
+
 @role_required("Student")
 def student_profile(request):
+  student = get_object_or_404(Student, user=request.user)
 
-    student = get_object_or_404(
-        Student,
-        user=request.user
-    )
-
-    return render(
-        request,
-        "student_dashboard/profile.html",
-        {
-            "student": student
-        }
-    )
+  return render(
+      request, "student_dashboard/profile.html", {"student": student}
+  )
